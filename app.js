@@ -1,5 +1,7 @@
-const express = require("express");
 const fs = require("fs");
+
+const express = require("express");
+const mongoose = require("mongoose");
 const morgan = require('morgan');
 
 const tourRouter = require("./Routes/tourRoutes")
@@ -10,11 +12,21 @@ const userRouter = require("./Routes/userRoutes")
 // console.log("--> env : ", process.env.NODE_ENV)
 const app = express();
 
-// Installed middleware
 if (process.env.NODE_ENV === "development") {
+
+    // Using installed middleware morgan
     app.use(morgan("dev"));
 
 }
+// Connecting with the database
+mongoose.connect(process.env.DATABASE, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log("Connected to the database");
+}).catch((err) => {
+    console.log("Error : ", err)
+})
 
 // 1). Middlewares
 app.use(express.json());
