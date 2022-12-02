@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Tour = require("../Models/tourModel");
 // READING DATA FILE
 
 const filePath = path.join(__dirname, "../dev-data/data/tours-simple.json");
@@ -7,6 +8,32 @@ const filePath = path.join(__dirname, "../dev-data/data/tours-simple.json");
 let tours = fs.readFileSync(filePath, "utf-8");
 tours = JSON.parse(tours);
 
+
+// Create a new document and insert in the database
+const createTour = async (req, res) => {
+    try {
+        // Creating a new tour
+        const newTour = new Tour(req.body);
+        // Inserting new tour to the database
+        const result = await newTour.save();
+        res.status(200).json({
+            status: "Success",
+            message: "New tour added to database",
+            body: {
+                newTour
+            }
+        })
+    }
+    catch (err) {
+        res.status(404).json({
+            status: "Fail",
+            message: "Error adding new tour",
+            body: {
+                err
+            }
+        })
+    }
+}
 
 const checkBody = (req, res, next) => {
     console.log("***********************************")
@@ -75,36 +102,7 @@ const getAllTours = (req, res) => {
         }
     })
 }
-// Adding a new tour
-const createTour = (req, res) => {
 
-    // extracting id to assign to new tour
-    const newId = tours[tours.length - 1].id + 1;
-    // making a new tour
-    const newTour = Object.assign({ id: newId }, req.body);
-    // pushing new tour along with the other tours
-    tours.push(newTour);
-    // writing tours back to the file
-    fs.writeFile(filePath, JSON.stringify(tours), (err, data) => {
-        if (err) {
-            res.status(404).json({
-                status: "fail",
-                message: "fail adding new tour",
-                data: {
-                    tour: newTour
-                }
-            })
-
-        }
-        res.status(201).json({
-            status: "success",
-            message: "new tour added",
-            data: {
-                tour: newTour
-            }
-        });
-    });
-}
 // Getting a specific tour
 const getSpecificTour = (req, res) => {
 
@@ -188,3 +186,40 @@ module.exports = {
     checkID,
     checkBody
 }
+
+
+
+
+// // Adding a new tour
+// const createTour = async (req, res) => {
+
+//     console.log("In create Tour function using mongo db database");
+
+//     await createDocument(req.body);
+
+//     // // extracting id to assign to new tour
+//     // const newId = tours[tours.length - 1].id + 1;
+//     // // making a new tour
+//     // const newTour = Object.assign({ id: newId }, req.body);
+//     // // pushing new tour along with the other tours
+//     // tours.push(newTour);
+//     // // writing tours back to the file
+//     // fs.writeFile(filePath, JSON.stringify(tours), (err, data) => {
+//     //     if (err) {
+//     //         res.status(404).json({
+//     //             status: "fail",
+//     //             message: "fail adding new tour",
+//     //             data: {
+//     //                 tour: newTour
+//     //             }
+//     //         })
+//     //     }
+//     //     res.status(201).json({
+//     //         status: "success",
+//     //         message: "new tour added",
+//     //         data: {
+//     //             tour: newTour
+//     //         }
+//     //     });
+//     // });
+// }

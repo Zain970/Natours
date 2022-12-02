@@ -12,14 +12,13 @@ const userRouter = require("./Routes/userRoutes")
 // Models
 const Tour = require("./Models/tourModel");
 
-// ************ Printing the environment *******************
+// *********** Printing the environment ************
 // console.log("--> env : ", process.env.NODE_ENV)
 
 // Initializing express app
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
-
     // Using installed middleware morgan
     app.use(morgan("dev"));
 }
@@ -49,34 +48,6 @@ app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
     next();
 });
-
-app.use("/insert", (req, res) => {
-    console.log("Request body : ", req.body)
-
-    const newTour = new Tour(req.body);
-    newTour.save((err) => {
-        if (err) {
-            res.status(404).json({
-                status: "Fail",
-                message: "Error adding new tour",
-                body: {
-                    err
-                }
-            })
-        }
-        else {
-            res.status(200).json({
-                status: "Success",
-                message: "New tour added to database",
-                body: {
-                    data: req.body
-                }
-            })
-        }
-    });
-
-})
-
 
 // Main routes
 app.use("/api/v1/tours", tourRouter);

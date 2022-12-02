@@ -9,6 +9,13 @@ const tourSchema = mongoose.Schema({
     },
     ratings: {
         type: Number
+    },
+    duration: {
+        type: String
+    },
+    difficulty: {
+        type: String,
+        default: "easy"
     }
 })
 
