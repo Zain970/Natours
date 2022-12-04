@@ -1,7 +1,19 @@
-
+const APIFeatures = require("../utils/apiFeatures");
 const Tour = require("../Models/tourModel");
 
-// Create a new document and insert in the database
+
+aliasTopTours = (req, res, next) => {
+
+    // Prefilling the parts of the query
+    req.query.limit = "5";
+    req.query.sort = "-ratingsAverage,price";
+    req.query.fields = "name,price,ratingsAverage,summary,difficulty"
+
+    next();
+}
+
+
+// Create a new tour
 const createTour = async (req, res) => {
     try {
         // Creating a new tour
@@ -27,12 +39,23 @@ const createTour = async (req, res) => {
 }
 
 
+
 // Get all tours
 const getAllTours = async (req, res) => {
 
     try {
-        // Getting all the tours
-        const tours = await Tour.find();
+
+        // Execute query
+        const features = new APIFeatures(Tour, req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+
+        console.log("Query -->: ");
+
+        const tours = await features.query;
+
         res.status(200).json({
             status: "success",
             requestedAt: req.requestTime,
@@ -40,15 +63,12 @@ const getAllTours = async (req, res) => {
             data: {
                 tours
             }
-
         })
     }
     catch (err) {
-
         res.status(404).json({
             status: "fail",
             message: err
-
         })
     }
 }
@@ -122,7 +142,17 @@ const deleteTour = async (req, res) => {
 
         })
     }
+}
 
+const getTourStats = async () => {
+    try {
+
+    } catch (err) {
+        res.status(404).json({
+            status: "fail",
+            message: err
+        })
+    }
 }
 
 
@@ -132,4 +162,5 @@ module.exports = {
     updateTour,
     deleteTour,
     createTour,
+    aliasTopTours
 }

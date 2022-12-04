@@ -3,13 +3,15 @@ const tourController = require("../Controllers/tourController.js")
 
 const router = express.Router();
 
-// // Param middlware if ID is passed
+// Param middlware if id is passed -------------------------
 // router.param("id", tourController.checkID)
 
+// Alias top tours
+// limit=5&sort=ratingsAverage,price
+router.route("/top-5-cheap").get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route("/")
     .get(tourController.getAllTours)
-
     // Check body middle-ware is called first before adding new tour
     .post(tourController.createTour);
 
