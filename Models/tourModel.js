@@ -2,23 +2,23 @@ const mongoose = require("mongoose");
 const slugify = require("slugify");
 const validator = require("validator");
 
-// We can also use built in custom validators, that returns true or false
+
+
+// We can also build our customer validators, that returns true or false
 
 // Schema and validators
 const tourSchema = mongoose.Schema({
     name: {
         type: String,
+        // Validator required is available for all the data- types
         required: [true, "A tour must have a name"],
-
-        // not really a validator (unique)
+        // Not really a validator (unique)
         unique: true,
 
         maxlength: [40, "A tour name must have less or equal than 40 characters"],
         minlength: [10, "A tour name must have more or equal than 10 characters"],
-
-        // Validator will be run to alphabets or numbers
+        // Validator will be run  , if spaces in name , it produces an error
         // validate: [validator.isAlpha, "Tour name must only contains characters"]
-
     },
     slug: String,
     price: {
@@ -27,20 +27,22 @@ const tourSchema = mongoose.Schema({
     },
     priceDiscount: {
         type: Number,
+        // Custom validator because cannot do with buildin validator
         validate: {
             validator: function (value) {
+                // this only points to current document on new document creation
                 return value < this.price
-            }
+            },
+            // This messsage will be returned if discount price greater then the actual price
+            message: "Dicount price ({VALUE}) should be below the regular price"
         },
-        // This messsage will be returned if discount pricr greater then the actual price
-        message: "Dicount price ({VALUE}) should be below the regular price"
     },
     ratingsAverage: {
         type: Number,
         default: 4.5,
         // reatings value will be between 1 and 5
         min: [1, "Rating must be above 1.0"],
-        min: [5, "Rating must be below 5.0"],
+        max: [5, "Rating must be below 5.0"],
     },
     ratingsQuantity: {
         type: Number,
@@ -53,6 +55,9 @@ const tourSchema = mongoose.Schema({
     difficulty: {
         type: String,
         required: [true, "A tour must have a difficulty"],
+
+        // A tour can only have these values.
+        // enum only works for strings
         enum: {
             values: ["easy", "medium", "difficult"],
             message: "Diffiiculty is either : easy, medium,difficulty"
@@ -125,7 +130,7 @@ tourSchema.pre("save", function (next) {
 //     next();
 // })
 
-// 2).Query middle-ware  ----------------------------------->
+// 2).Query middle-ware  ------------------------------------------------------------------------------------------------------->
 // Not working for findOne
 // Regular expression for making it run for all the commands starting with the find
 // All these queries that starts with find , it will run for all those queries
@@ -139,23 +144,27 @@ tourSchema.pre(/^find/, function (next) {
     this.start = Date.now();
     next();
 })
-// Runs after the query is executed 
+// Runs after the query is executed
 // docs  has access to all the documents that were returned
+// This points to the aggregation object
 tourSchema.post(/^find/, function (docs, next) {
-
-    console.log("Query took : ", Date.now() - this.start, " milliseconds")
+    console.log("(In tourSchema post )Query took : ", Date.now() - this.start, " milliseconds")
     // console.log("All docs : ", docs)
     next();
 });
 
-// 3).Aggregation middleware  -------------------------------------------->
+// 3).Aggregation middleware  ----------------------------------------------------------------------------------------------------------->
 // This object points to the aggregation pipeline
 tourSchema.pre("aggregate", function (next) {
     // Gives the aggregation object
     // console.log(this.pipeline())
 
     // Removing from the output all the documents that have secretTour:true
+    // Adding another match at the end 
     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
+
+    // console.log(this.pipeline())
+
 
     next();
 })

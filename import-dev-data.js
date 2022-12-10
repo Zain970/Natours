@@ -20,7 +20,6 @@ mongoose.connect(process.env.DATABASE, {
 // Reading file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, "utf-8"));
 
-// console.log("Tours : ", tours)
 
 
 const importData = async () => {

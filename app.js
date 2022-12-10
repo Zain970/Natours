@@ -2,9 +2,16 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require('morgan');
 
-// Routes
+// Loading Routes from the Routes folder
 const tourRouter = require("./Routes/tourRoutes")
 const userRouter = require("./Routes/userRoutes")
+
+// Importing Error class
+const AppError = require("./utils/appError");
+
+// Importing global error Handler
+const globalErrorHandler = require("./Controllers/errorController");
+
 
 // Initializing the express app
 const app = express();
@@ -25,9 +32,11 @@ app.use(express.static(`${__dirname}/public`))
 
 // Check middle-ware
 app.use((req, res, next) => {
+    console.log("Hello from the middle-ware")
     next();
 });
-// Manipulating the request using middle-ware
+
+// Manipulating the request object using middle-ware
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
     next();
@@ -37,5 +46,15 @@ app.use((req, res, next) => {
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
+
+// Operational error
+app.all("*", (req, res, next) => {
+
+    next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404));
+})
+
+// Error handling middleware
+// Four parameters :- Error handling middleware
+app.use(globalErrorHandler);
 
 module.exports = app;

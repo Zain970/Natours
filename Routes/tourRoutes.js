@@ -3,12 +3,12 @@ const tourController = require("../Controllers/tourController.js")
 
 const router = express.Router();
 
-// Param middlware if id is passed -------------------------
+// Param middlware if id is passed  to check before all the routes that if id is present -------------------------
 // router.param("id", tourController.checkID)
 
 // Alias top tours
 // limit=5&sort=ratingsAverage,price
-// Modify the request object
+// Modify the request object using aliasTopTours and then pass to the get all tours
 router.route("/top-5-cheap").get(tourController.aliasTopTours, tourController.getAllTours);
 
 // Aggregation pipe-line
@@ -18,7 +18,6 @@ router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
 
 router.route("/")
     .get(tourController.getAllTours)
-    // Check body middle-ware is called first before adding new tour
     .post(tourController.createTour);
 
 router.route("/:id")
