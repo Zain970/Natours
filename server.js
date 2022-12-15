@@ -1,5 +1,13 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+
+
+// Event for capturing exception
+// process.on("uncaughtException", (err) => {
+//     console.log("UNCAUGHT EXCEPTION SHUTTING DOWN ...");
+//     console.log(err.name, err.message);
+// })
+
 // Reading environment variables
 dotenv.config({ path: "./config.env" })
 
@@ -12,20 +20,21 @@ mongoose.connect(process.env.DATABASE, {
 
 }).then(() => {
     console.log("*** Connected to the database ***");
-}).catch((err) => {
-    console.log("Error : ", err)
-})
-
-
+});
 // Logging environment variables
 // console.log(process.env);
 
 // **************** SERVER LISTENING *******************
 const port = process.env.PORT || 3000
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log("*** Server listening in port ", `${port}`, "*** ")
 })
 
+process.on("unhandledrejection", (err) => {
+    console.log('UNHANDLED REJECTION SHUTTING DOWN ...');
+    console.log(err.name, err.messgae);
 
-
-// Test
+    server.close(() => {
+        process.exit(1);
+    })
+})

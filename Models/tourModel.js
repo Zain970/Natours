@@ -148,7 +148,8 @@ tourSchema.pre(/^find/, function (next) {
 // docs  has access to all the documents that were returned
 // This points to the aggregation object
 tourSchema.post(/^find/, function (docs, next) {
-    console.log("(In tourSchema post )Query took : ", Date.now() - this.start, " milliseconds")
+    // console.log("(In tourSchema post )Query took : ", Date.now() - this.start, " milliseconds")
+
     // console.log("All docs : ", docs)
     next();
 });

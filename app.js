@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const morgan = require('morgan');
 
 // Loading Routes from the Routes folder
@@ -9,7 +8,7 @@ const userRouter = require("./Routes/userRoutes")
 // Importing Error class
 const AppError = require("./utils/appError");
 
-// Importing global error Handler
+// Importing global error Handler from controllers folder
 const globalErrorHandler = require("./Controllers/errorController");
 
 
@@ -32,7 +31,8 @@ app.use(express.static(`${__dirname}/public`))
 
 // Check middle-ware
 app.use((req, res, next) => {
-    console.log("Hello from the middle-ware")
+    // console.log("Hello from the middle-ware");
+
     next();
 });
 
@@ -47,7 +47,8 @@ app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
 
-// Operational error
+// If Invalid route hit
+// Responding to all the urls and all the request types (post,get,patch,delete)
 app.all("*", (req, res, next) => {
 
     next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404));

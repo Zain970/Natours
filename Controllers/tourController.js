@@ -48,7 +48,6 @@ const getAllTours = catchAsync(async (req, res, next) => {
 
 // Getting a specific tour
 const getTour = catchAsync(async (req, res, next) => {
-
     const id = req.params.id
     const tour = await Tour.findById(id);
 
@@ -56,7 +55,6 @@ const getTour = catchAsync(async (req, res, next) => {
     if (!tour) {
         return next(new appError("No tour found with that ID", 404));
     }
-
     res.status(200).json({
         status: "success",
         data: {
