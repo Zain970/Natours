@@ -55,18 +55,15 @@ const handleValidationErrorDB = (error) => {
     return new AppError(message, 400);
 }
 
-
 const error = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || "error";
 
-    if (process.env.NODE_ENV == "development123") {
+    if (process.env.NODE_ENV == "development") {
         sendErrorDev(err, res);
     }
-    else if (process.env.NODE_ENV == "development") {
-
+    else if (process.env.NODE_ENV == "production") {
         let error = { ...err };
-
         //Destructing kartay waqt ghaib ho jata ha message property
         if (err.message == "No tour found with that ID") {
             error.message = "No tour found with that ID";

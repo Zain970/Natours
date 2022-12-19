@@ -4,17 +4,15 @@ const authController = require("../Controllers/authController.js");
 
 const router = express.Router();
 
-// Only post the data , so new user can be created
+// Only post the data , so new user can be created , creating new user and assigning the token to the new user
 router.post("/signup", authController.signup);
+
+// Logining in the user that is assigning new token to the user
+router.post("/login", authController.login);
 
 router.route("/")
     .get(userController.getAllUsers)
-    .post(userController.createUser);
 
-router.route("/:id")
-    .get(userController.getSpecificUser)
-    .patch(userController.updateUser)
-    .delete(userController.deleteUser);
 
 
 module.exports = router;
