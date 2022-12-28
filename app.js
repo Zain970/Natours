@@ -1,14 +1,10 @@
 const express = require("express");
 const morgan = require('morgan');
-
-// Loading Routes from the Routes folder
 const tourRouter = require("./Routes/tourRoutes")
 const userRouter = require("./Routes/userRoutes")
 
-// Importing Error class
+// Errors
 const AppError = require("./utils/appError");
-
-// Importing global error Handler from controllers folder
 const globalErrorHandler = require("./Controllers/errorController");
 
 
@@ -38,6 +34,8 @@ app.use((req, res, next) => {
 
 // Manipulating the request object using middle-ware
 app.use((req, res, next) => {
+    // console.log("Headers : ", req.headers);
+
     req.requestTime = new Date().toISOString();
     next();
 });
@@ -49,8 +47,8 @@ app.use("/api/v1/users", userRouter);
 
 // If Invalid route hit
 // Responding to all the urls and all the request types (post,get,patch,delete)
+// Isoperational set wil be true
 app.all("*", (req, res, next) => {
-
     next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404));
 })
 

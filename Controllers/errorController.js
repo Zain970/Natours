@@ -26,7 +26,7 @@ const sendErrorProd = (err, res) => {
         // Proramming error will not be having the error property
         // Sending generic message
         // Log error
-        console.error("ERROR : ", err);
+        console.error("Error  : ", err);
         res.status(500).json({
             status: "err",
             message: "Something went very wrong"
@@ -41,6 +41,7 @@ const handleCastErrorDB = (error) => {
     const message = `Invalid ${error.path} : ${error.value}`
     return new AppError(message, 400);
 }
+
 // Duplicate tours with the same name
 // Will be marked operational automatically
 // Creating meaningful message for the client 
@@ -50,24 +51,35 @@ const handleDuplicateFieldsDB = (error) => {
 }
 
 const handleValidationErrorDB = (error) => {
-    const errors = Object.values(error.errors).map(el => el.message)
+    const errors = Object.values(error.errors).map(el => el.message);
     const message = `Invalid input data. ${errors.join(". ")}`;
     return new AppError(message, 400);
 }
-
+const handleJWTError = () => {
+    return new AppError("Invalid token ! Please log in again.", 401);
+}
+const tokenExpiredError = () => {
+    return new AppError("Your token has expired ! please log in again.", 401);
+}
 const error = (err, req, res, next) => {
+    console.log("*************************");
+    console.log('Error handling controller');
+    console.log("*************************");
+
     err.statusCode = err.statusCode || 500;
     err.status = err.status || "error";
 
-    if (process.env.NODE_ENV == "development") {
+    if (process.env.NODE_ENV == "development1") {
         sendErrorDev(err, res);
     }
-    else if (process.env.NODE_ENV == "production") {
+    else if (process.env.NODE_ENV == "development") {
+
+        // Destructing kartay waqt ghaib ho jata ha message property
         let error = { ...err };
-        //Destructing kartay waqt ghaib ho jata ha message property
-        if (err.message == "No tour found with that ID") {
-            error.message = "No tour found with that ID";
-        }
+        // This value is not copied while destructing
+        error.message = err.message;
+
+        // Error from the db that is not able to cast
         if (err.name == "CastError") {
             error = handleCastErrorDB(error);
         }
@@ -76,7 +88,12 @@ const error = (err, req, res, next) => {
         }
         if (err.name == "ValidationError") {
             error = handleValidationErrorDB(error);
-
+        }
+        if (err.name == "JsonWebTokenError") {
+            error = handleJWTError();
+        }
+        if (err.name == "TokenExpiredError") {
+            error = tokenExpiredError();
         }
 
         sendErrorProd(error, res);

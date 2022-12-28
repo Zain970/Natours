@@ -53,6 +53,7 @@ const getTour = catchAsync(async (req, res, next) => {
 
     // If any tour with this id not found
     if (!tour) {
+        // IsOperational will be set true
         return next(new appError("No tour found with that ID", 404));
     }
     res.status(200).json({
