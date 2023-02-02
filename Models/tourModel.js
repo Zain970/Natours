@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 const validator = require("validator");
-
-
-
 // We can also build our customer validators, that returns true or false
 
 // Schema and validators
@@ -14,7 +11,6 @@ const tourSchema = mongoose.Schema({
         required: [true, "A tour must have a name"],
         // Not really a validator (unique)
         unique: true,
-
         maxlength: [40, "A tour name must have less or equal than 40 characters"],
         minlength: [10, "A tour name must have more or equal than 10 characters"],
         // Validator will be run  , if spaces in name , it produces an error
@@ -40,7 +36,7 @@ const tourSchema = mongoose.Schema({
     ratingsAverage: {
         type: Number,
         default: 4.5,
-        // reatings value will be between 1 and 5
+        // ratings value will be between 1 and 5
         min: [1, "Rating must be above 1.0"],
         max: [5, "Rating must be below 5.0"],
     },
@@ -60,7 +56,7 @@ const tourSchema = mongoose.Schema({
         // enum only works for strings
         enum: {
             values: ["easy", "medium", "difficult"],
-            message: "Diffiiculty is either : easy, medium,difficulty"
+            message: "Diffiiculty is either : easy, medium,difficult"
         }
     },
     maxGroupSize: {
@@ -92,20 +88,41 @@ const tourSchema = mongoose.Schema({
         default: Date.now(),
         select: false
     },
-    startDates: [Date]
+    startDates: [Date],
+    startLocation: {
+        // GeoJSON 
+        type: {
+            type: String,
+            default: "Point",
+            enum: ["Point"]
+        },
+        // coordinates of the point
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: {
+                type: String,
+                default: "Point",
+                enum: ["Point"]
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+            day: Number
+        }
+    ]
 },
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true }
-
     })
-
 // Not passed to the database and cannot be queried but only added when the document is fetched from the database
 tourSchema.virtual("durationWeeks").get(function () {
     return this.duration / 7;
 })
-
-
 // 1).Document middle-ware ------------------------------------->
 // Mongoose also has the middle-ware
 // Pre and post hooks
@@ -115,7 +132,6 @@ tourSchema.virtual("durationWeeks").get(function () {
 // This object points to the current processed document
 // Will not work for insert many ,find one and update
 tourSchema.pre("save", function (next) {
-
     // Adding a new property (slug) to the document before the document is saved to the database
     this.slug = slugify(this.name, { lower: true });
     next();
@@ -139,7 +155,6 @@ tourSchema.pre("save", function (next) {
 tourSchema.pre(/^find/, function (next) {
     // this contains the query
     this.find({ secretTour: { $ne: true } });
-
     // This is just a regular object so we can set a property to it just like we set to regular objects
     this.start = Date.now();
     next();
@@ -149,7 +164,6 @@ tourSchema.pre(/^find/, function (next) {
 // This points to the aggregation object
 tourSchema.post(/^find/, function (docs, next) {
     // console.log("(In tourSchema post )Query took : ", Date.now() - this.start, " milliseconds")
-
     // console.log("All docs : ", docs)
     next();
 });
@@ -159,14 +173,10 @@ tourSchema.post(/^find/, function (docs, next) {
 tourSchema.pre("aggregate", function (next) {
     // Gives the aggregation object
     // console.log(this.pipeline())
-
     // Removing from the output all the documents that have secretTour:true
     // Adding another match at the end 
     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
-
     // console.log(this.pipeline())
-
-
     next();
 })
 
